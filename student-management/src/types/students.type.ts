@@ -1,3 +1,4 @@
+// đây là kiểu student item
 export interface Student {
   id: number
   first_name: string

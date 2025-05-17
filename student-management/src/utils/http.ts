@@ -7,7 +7,7 @@ class Http {
       baseURL: 'http://localhost:4000/',
       timeout: 10000,
       headers: {
-        'Content-Type': 'application/json'
+        'content-Type': 'application/json'
       }
     })
   }
