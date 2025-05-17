@@ -1,9 +1,15 @@
-import { useEffect } from 'react'
+import { getStudents } from 'apis/students.api'
+import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 
 export default function Students() {
-  // bình thường gọi api sẽ gọi bằng
-  useEffect(() => {}, [])
+  const [students, setStudents] = useState([])
+  // bình thường gọi api sẽ gọi bằng useEffect
+  useEffect(() => {
+    getStudents(1, 10).then((res) => {
+      console.log(res.data)
+    })
+  }, [])
   return (
     <div>
       <h1 className='text-lg'>Students</h1>

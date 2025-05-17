@@ -10,4 +10,6 @@ export interface Student {
   btc_address: string
 }
 
+// kiểu studentList để tiện lợi hơn chúng ta không cần khai báo lại
+// chúng ta có thể tái sử dụng lại method Pick của typeScript
 export type Students = Pick<Student, 'id' | 'email' | 'avatar' | 'last_name'>[]
