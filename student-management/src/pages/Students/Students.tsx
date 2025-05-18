@@ -2,26 +2,35 @@ import { getStudents } from 'apis/students.api'
 import { Fragment, useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Students as StudentsType } from 'types/students.type'
-
+import { useQuery } from '@tanstack/react-query'
+import { useSearchParams } from 'react-router-dom'
 // khi type giống với class thì sẽ bị lỗi
 // Import 'Students' conflicts with local value, so must be declared with a type-only import when 'isolatedModules' is enabled.
 // thế nên sẽ as  StudentType
 export default function Students() {
-  const [students, setStudents] = useState<StudentsType>([])
-  const [isLoading, setIsLoading] = useState<Boolean>(false)
-  // bình thường gọi api sẽ gọi bằng useEffect
-  useEffect(() => {
-    // mới gọi setLoading là true
-    setIsLoading(true)
-    getStudents(1, 10)
-      .then((res) => {
-        setStudents(res.data)
-      })
-      .finally(() => {
-        // nếu gọi thất bại hay gọi thành công thì đều vào cái finally này cả
-        setIsLoading(false)
-      })
-  }, [])
+  // const [students, setStudents] = useState<StudentsType>([])
+  // const [isLoading, setIsLoading] = useState<Boolean>(false)
+  // // bình thường gọi api sẽ gọi bằng useEffect
+  // useEffect(() => {
+  //   // mới gọi setLoading là true
+  //   setIsLoading(true)
+  //   getStudents(1, 10)
+  //     .then((res) => {
+  //       setStudents(res.data)
+  //     })
+  //     .finally(() => {
+  //       // nếu gọi thất bại hay gọi thành công thì đều vào cái finally này cả
+  //       setIsLoading(false)
+  //     })
+  // }, [])
+
+  const [searchParams] = useSearchParams()
+  const searchParamObject = Object.fromEntries([...searchParams])
+  // page sẽ lấy từ param
+  // const result = useQuery({
+  //   queryKey: ['student', page],
+  //   queryFn: () => getStudents(page, 10)
+  // })
   return (
     <div>
       <h1 className='text-lg'>Students</h1>
