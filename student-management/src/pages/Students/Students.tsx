@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom'
 import { Students as StudentsType } from 'types/students.type'
 import { useQuery } from '@tanstack/react-query'
 import { useSearchParams } from 'react-router-dom'
+import { useQueryString } from 'utils/utils'
 // khi type giống với class thì sẽ bị lỗi
 // Import 'Students' conflicts with local value, so must be declared with a type-only import when 'isolatedModules' is enabled.
 // thế nên sẽ as  StudentType
@@ -24,13 +25,16 @@ export default function Students() {
   //     })
   // }, [])
 
-  const [searchParams] = useSearchParams()
-  const searchParamObject = Object.fromEntries([...searchParams])
+  const queryString: { page?: string } = useQueryString()
+  // nếu không có page là number thì Number sẽ convert ra NaN (Not a Number)
+  const page = Number(queryString.page) || 1 // nếu NaN là số 1
   // page sẽ lấy từ param
-  // const result = useQuery({
-  //   queryKey: ['student', page],
-  //   queryFn: () => getStudents(page, 10)
-  // })
+  const { data, isLoading } = useQuery({
+    queryKey: ['student', page],
+    queryFn: () => getStudents(page, 10)
+  })
+  console.log(data)
+
   return (
     <div>
       <h1 className='text-lg'>Students</h1>
@@ -76,7 +80,7 @@ export default function Students() {
                 </tr>
               </thead>
               <tbody>
-                {students.map((student) => (
+                {data?.data.map((student) => (
                   <tr
                     key={student.id}
                     className='border-b bg-white hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-600'
