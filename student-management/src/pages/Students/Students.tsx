@@ -5,6 +5,7 @@ import { Students as StudentsType } from 'types/students.type'
 import { useQuery } from '@tanstack/react-query'
 import { useSearchParams } from 'react-router-dom'
 import { useQueryString } from 'utils/utils'
+import classNames from 'classnames'
 // khi type giống với class thì sẽ bị lỗi
 // Import 'Students' conflicts with local value, so must be declared with a type-only import when 'isolatedModules' is enabled.
 // thế nên sẽ as  StudentType
@@ -32,7 +33,7 @@ export default function Students() {
   // page sẽ lấy từ param
   const { data, isLoading } = useQuery({
     queryKey: ['students', page],
-    queryFn: () => getStudents(page, 10)
+    queryFn: () => getStudents(page, LIMIT)
   })
   // query key là gì là 1 cái key định danh cho cái query  , react-query quản lý caching dựa trên query key
   // nên đặt query có nghĩa để dễ quản lý và clean code
@@ -128,11 +129,18 @@ export default function Students() {
                   .fill(0)
                   .map((_, index) => {
                     const pageNumber = index + 1
+                    const isActive = page === pageNumber // khi page = 4 thì active ô số 4
                     return (
                       <li key={pageNumber}>
                         <Link
-                          className='border border-gray-300 bg-white  py-2 px-3 leading-tight  text-gray-500   hover:bg-gray-100  hover:text-gray-700'
-                          to={`/students?${pageNumber}`}
+                          className={classNames(
+                            'border border-gray-300   py-2 px-3 leading-tight     hover:bg-gray-100  hover:text-gray-700',
+                            {
+                              'bg-gray-100 text-gray-700': isActive,
+                              'bg-white  text-gray-500': !isActive // khi không có active thì nó mới có bg-white
+                            }
+                          )}
+                          to={`/students?page=${pageNumber}`}
                         >
                           {pageNumber}
                         </Link>
