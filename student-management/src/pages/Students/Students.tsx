@@ -8,6 +8,7 @@ import { useQueryString } from 'utils/utils'
 // khi type giống với class thì sẽ bị lỗi
 // Import 'Students' conflicts with local value, so must be declared with a type-only import when 'isolatedModules' is enabled.
 // thế nên sẽ as  StudentType
+const LIMIT = 10
 export default function Students() {
   // const [students, setStudents] = useState<StudentsType>([])
   // const [isLoading, setIsLoading] = useState<Boolean>(false)
@@ -36,6 +37,12 @@ export default function Students() {
   // query key là gì là 1 cái key định danh cho cái query  , react-query quản lý caching dựa trên query key
   // nên đặt query có nghĩa để dễ quản lý và clean code
   // query function return  về 1  cái promise
+  // để làm chức năng phân trang thì server trả về 1 cái response có x-total-count là tổng số item từ đó biết được số lượng trang
+
+  const totalStudentsCount = Number(data?.headers['x-total-count'] || 0)
+  const totalPage = Math.ceil(totalStudentsCount / LIMIT)
+  console.log(totalPage)
+
   return (
     <div>
       <h1 className='text-lg'>Students</h1>
@@ -117,14 +124,22 @@ export default function Students() {
                     Previous
                   </span>
                 </li>
-                <li>
-                  <a
-                    className='border border-gray-300 bg-white bg-white py-2 px-3 leading-tight text-gray-500 text-gray-500  hover:bg-gray-100 hover:bg-gray-100 hover:text-gray-700 hover:text-gray-700'
-                    href='/students?page=8'
-                  >
-                    1
-                  </a>
-                </li>
+                {Array(totalPage)
+                  .fill(0)
+                  .map((_, index) => {
+                    const pageNumber = index + 1
+                    return (
+                      <li key={pageNumber}>
+                        <Link
+                          className='border border-gray-300 bg-white  py-2 px-3 leading-tight  text-gray-500   hover:bg-gray-100  hover:text-gray-700'
+                          to={`/students?${pageNumber}`}
+                        >
+                          {pageNumber}
+                        </Link>
+                      </li>
+                    )
+                  })}
+
                 <li>
                   <a
                     className='rounded-r-lg border border-gray-300 bg-white py-2 px-3 leading-tight text-gray-500 hover:bg-gray-100 hover:text-gray-700 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white'
