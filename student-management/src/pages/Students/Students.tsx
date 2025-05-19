@@ -30,11 +30,12 @@ export default function Students() {
   const page = Number(queryString.page) || 1 // nếu NaN là số 1
   // page sẽ lấy từ param
   const { data, isLoading } = useQuery({
-    queryKey: ['student', page],
+    queryKey: ['students', page],
     queryFn: () => getStudents(page, 10)
   })
-  console.log(data)
-
+  // query key là gì là 1 cái key định danh cho cái query  , react-query quản lý caching dựa trên query key
+  // nên đặt query có nghĩa để dễ quản lý và clean code
+  // query function return  về 1  cái promise
   return (
     <div>
       <h1 className='text-lg'>Students</h1>
