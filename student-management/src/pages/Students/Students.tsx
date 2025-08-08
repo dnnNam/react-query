@@ -32,8 +32,11 @@ export default function Students() {
   const page = Number(queryString.page) || 1 // nếu NaN là số 1
   // page sẽ lấy từ param
   const { data, isLoading } = useQuery({
-    queryKey: ['students', page],
-    queryFn: () => getStudents(page, LIMIT)
+    queryKey: ['students', page], // khi component render lần đầu tiên thì getStudent được gọi ---> dữ liệu được tải về --> lưu vào cache với key là 'students'
+    queryFn: () => getStudents(page, LIMIT) // nếu conmponent umount rồi sau đó mount lại , hoặc có component khác cũng gọi cùng query key 'students' thì react query không gọi lại
+    // API , mà trả  về dữ liệu từ cache
+    // ngoài còn có stale time : là khoảng thời gian dữ liệu còn mới không cần gọi lại API , cache time là thời gian tồn tại nếu sau khoảng  thời gian nào đó không được dùng
+    // nếu không truyền vào staletime mặc định là 0 và cachetime là 5 * 60 * 1000 = 5 phút viết dưới dạng miliseconds  1 giây = 1000 milliseconds 1 phút = 60 giây 5 phút
   })
   // query key là gì là 1 cái key định danh cho cái query  , react-query quản lý caching dựa trên query key
   // nên đặt query có nghĩa để dễ quản lý và clean code
