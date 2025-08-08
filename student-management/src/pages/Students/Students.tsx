@@ -47,12 +47,26 @@ export default function Students() {
   // nếu hết hạn Stale , dự liệu xem là (stale) cũ  sẽ refetch
   //stale time mà set là Infinity thì sẽ không bị refetch cho đến khi query bị hủy thủ  công
   //stale time mà set là Static thì sẽ không bị refetch cho dù query bị hủy thủ công hoàn toàn khóa cứng dữ liệu không bao giờ fetch lại nữa
-  // cách tốt nhất để tránh việc gọi lại API lại quá nhiều lần (refetch) là staleTime để giữ dữ liệu tươi lâu hơn
+  // cách tốt nhất để tránh việc gọi lại API lại quá nhiều lần (refetch) là staleTime để giữ dữ liệu  mới lâu hơn
   // nhưng ngoài ra bạn cũng có thể tùy chỉnh thời điểm nào sẽ refetch lại , bằng cách refetchOnMount , refetchOnWindowFocus,refetchOnReconnect
   // refetchOnMount : có refetch lại khi component mount lại (ví dụ quay lại trang)
   // refetchOnWindowFocus: có refetch khi người dùng quay lại tab trình duyệt
   //refetchOnReconnect : có refetch lại khi mạng bị mất kết nối lại
   // nếu như dữ liệu của query đang stale (cũ) thì React Query sẽ tự động gọi lại API (refetch) khi có 1 sự kiện sau
+  //Khi dữ liệu đã cũ, React Query sẽ tự gọi API lại nếu bạn mở lại component, quay lại tab, hoặc vừa mất mạng xong kết nối lại.
+
+  // ngoài ra query còn có nhiều option khác  như refetchInterval: 10000 cứ 10 giây lại refetch lại 1 lần nó không bị phụ thuộc bởi stale time
+  // khi một query không còn được dùng ở đâu nữa (không còn component nào dùng useQuery) thì nó sẽ được gắn nhãn là 'inactive'
+  // nhưng vẫn còn nằm trong cache(bộ nhớ) --> chưa bị xóa ngay, nếu sau đó bạn lại dùng lại query đó  ---> nó lấy từ cache ra luôn , không gọi lại API lại
+  // khi một query trở thành inactive tức là không còn được sử dụng trong useQuery nó sẽ bị xóa khỏi cache sau 5 phút khoảng thời gian này gọi là cacheTime
+  // hay có thể viết là gcTime(viết tắt của Garbage Collection Time) có thể đổi giữ trong 10 phút
+  // nếu như gọi API mà thất bại sẽ không báo lỗi luôn mà cố gắng gọi lại 3 lần , mỗi lần gọi lại chờ lâu hơn lần trước sau đó mới thông báo lỗi
+  // có thể chỉnh số lần retry : thuộc tính retry , là mỗi lần thử cách nhau nhiêu giây retryDelay
+  // kết quả của useQuery mặc định được so sánh cấu trúc (structural sharing) nghĩa là nếu có kết quả mới sẽ so lại với kết quả cũ nếu không có gì thay đổi sẽ không tạo object mới
+  // structural sharing: kỹ thuật tái sử vùng nhớ (reference) cho những phần dữ liệu không thay đổi nhằm tiết kiệm bộ nhớ và giảm số lần render lại không cần thiết
+  // structural sharing chỉ hoạt động với dữ liệu JSON-compatible : là những kiểu dữ liệu mà có thẻ được chuyển thành chuỗi bằng JSON.Stringify() mà không bị lỗi
+  // String , Number , Boolean , null ,Array , Object
+  // thế nên những phần nào thay đổi thì sẽ dùng spread ... giúp react nhận biết nếu như khong có gì thay đổi thì giữ nguyên tránh re-render không cần thiết
   const totalStudentsCount = Number(data?.headers['x-total-count'] || 0)
   const totalPage = Math.ceil(totalStudentsCount / LIMIT)
   console.log(totalPage)
