@@ -35,14 +35,24 @@ export default function Students() {
     queryKey: ['students', page], // khi component render lần đầu tiên thì getStudent được gọi ---> dữ liệu được tải về --> lưu vào cache với key là 'students'
     queryFn: () => getStudents(page, LIMIT) // nếu conmponent umount rồi sau đó mount lại , hoặc có component khác cũng gọi cùng query key 'students' thì react query không gọi lại
     // API , mà trả  về dữ liệu từ cache
-    // ngoài còn có stale time : là khoảng thời gian dữ liệu còn mới không cần gọi lại API , cache time là thời gian tồn tại nếu sau khoảng  thời gian nào đó không được dùng
-    // nếu không truyền vào staletime mặc định là 0 và cachetime là 5 * 60 * 1000 = 5 phút viết dưới dạng miliseconds  1 giây = 1000 milliseconds 1 phút = 60 giây 5 phút
   })
   // query key là gì là 1 cái key định danh cho cái query  , react-query quản lý caching dựa trên query key
   // nên đặt query có nghĩa để dễ quản lý và clean code
   // query function return  về 1  cái promise
   // để làm chức năng phân trang thì server trả về 1 cái response có x-total-count là tổng số item từ đó biết được số lượng trang
 
+  // query option
+  // ngoài còn có stale time : là khoảng thời gian dữ liệu còn mới không cần gọi lại API , cache time là thời gian tồn tại nếu sau khoảng  thời gian nào đó không được dùng
+  // nếu không truyền vào staletime mặc định là 0 và cachetime là 5 * 60 * 1000 = 5 phút viết dưới dạng miliseconds  1 giây = 1000 milliseconds 1 phút = 60 giây 5 phút
+  // nếu hết hạn Stale , dự liệu xem là (stale) cũ  sẽ refetch
+  //stale time mà set là Infinity thì sẽ không bị refetch cho đến khi query bị hủy thủ  công
+  //stale time mà set là Static thì sẽ không bị refetch cho dù query bị hủy thủ công hoàn toàn khóa cứng dữ liệu không bao giờ fetch lại nữa
+  // cách tốt nhất để tránh việc gọi lại API lại quá nhiều lần (refetch) là staleTime để giữ dữ liệu tươi lâu hơn
+  // nhưng ngoài ra bạn cũng có thể tùy chỉnh thời điểm nào sẽ refetch lại , bằng cách refetchOnMount , refetchOnWindowFocus,refetchOnReconnect
+  // refetchOnMount : có refetch lại khi component mount lại (ví dụ quay lại trang)
+  // refetchOnWindowFocus: có refetch khi người dùng quay lại tab trình duyệt
+  //refetchOnReconnect : có refetch lại khi mạng bị mất kết nối lại
+  // nếu như dữ liệu của query đang stale (cũ) thì React Query sẽ tự động gọi lại API (refetch) khi có 1 sự kiện sau
   const totalStudentsCount = Number(data?.headers['x-total-count'] || 0)
   const totalPage = Math.ceil(totalStudentsCount / LIMIT)
   console.log(totalPage)
