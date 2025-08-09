@@ -27,6 +27,15 @@ export default function Students() {
   //     })
   // }, [])
 
+  // Query là cách khai báo (declarative dependency) rằng UI cần dữ liệu từ một nguồn bất đồng bộ, dữ liệu này được nhận diện bởi 1 khóa duy nhất để quản lí cache và refetch
+  // query có thể dùng bất kỳ hàm trả về Promise(GET, POST) miễn là mục đích lấy dữ liệu về server
+  // không nên dùng Query nếu API thay đổi resource phía server (thêm xóa sửa dữ liệu) nên dùng Mutation
+  // khác với HTTP thuần POST PUT PATCH thì chỉ thay đổi resource phía server , muốn lấy phải get , còn useMutation thây đổi resource phía server invalidate cache , tự gọi lại get
+  // kết quả trả ra của userQuery thường là isPending , isError , data, error
+  // ngoài ra còn có status để check trạng thái như pending  error , success
+  // cũng có thể kiểm tra quá trình fetch dữ liệu bằng fetchStatus fetching --> đang thực hiện gọi API
+  // paused ==> đang bị tạm dừng , idle ==> không làm gì cả
+
   const queryString: { page?: string } = useQueryString()
   // nếu không có page là number thì Number sẽ convert ra NaN (Not a Number)
   const page = Number(queryString.page) || 1 // nếu NaN là số 1
