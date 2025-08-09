@@ -46,7 +46,10 @@ export default function Students() {
     // API , mà trả  về dữ liệu từ cache
   })
   // query key là gì là 1 cái key định danh cho cái query  , react-query quản lý caching dựa trên query key
-  // nên đặt query có nghĩa để dễ quản lý và clean code
+  // nên đặt query có nghĩa để dễ quản lý và clean code nên đặt query key là mảng
+  // nếu định nghĩa bằng object cho dù đổi thứ tự các thuộc tính thì nó vẫn giống nhau
+  // cái biến đặt trong query key để phân biệt với các query key khác bắt buộc phải dùng trong query function để khi query key thay đổi
+  // thì tự gọi hàm để lấy dữ liệu
   // query function return  về 1  cái promise
   // để làm chức năng phân trang thì server trả về 1 cái response có x-total-count là tổng số item từ đó biết được số lượng trang
 
