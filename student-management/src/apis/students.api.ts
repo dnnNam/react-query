@@ -8,7 +8,9 @@ export const getStudents = (page: number | string, limit: number | string) =>
   // cái getStudents này return về cái kiểu axios
   // axios return về data có kiểu Students
   http.get<Students>('students', {
+    // students là end point là địa chỉ URL của API mà client sẽ gọi đến để lấy dữ liệu
     params: {
+      // request parameter
       _page: page,
       _limit: limit
     }

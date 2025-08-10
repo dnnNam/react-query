@@ -53,6 +53,11 @@ export default function Students() {
   // query function return  về 1  cái promise
   // để làm chức năng phân trang thì server trả về 1 cái response có x-total-count là tổng số item từ đó biết được số lượng trang
 
+  // query function (hàm dùng để fetch dữ liệu trong React Query) có thể là bất kỳ hàm nào miễn là nó trả về 1 Promise
+  // query function có thể nhận vào querykey nếu không nhận thì phải phụ thuộc vào biến bên ngoài ,
+  // signal : nhân đối tượng abortSignal dùng để hủy request nếu cần
+  // meta(optional ) : bổ sung query truyền dữ liệu riêng biệt cho từng query
+
   // query option
   // ngoài còn có stale time : là khoảng thời gian dữ liệu còn mới không cần gọi lại API , cache time là thời gian tồn tại nếu sau khoảng  thời gian nào đó không được dùng
   // nếu không truyền vào staletime mặc định là 0 và cachetime là 5 * 60 * 1000 = 5 phút viết dưới dạng miliseconds  1 giây = 1000 milliseconds 1 phút = 60 giây 5 phút
