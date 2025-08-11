@@ -57,6 +57,14 @@ export default function Students() {
   // query function có thể nhận vào querykey nếu không nhận thì phải phụ thuộc vào biến bên ngoài ,
   // signal : nhân đối tượng abortSignal dùng để hủy request nếu cần
   // meta(optional ) : bổ sung query truyền dữ liệu riêng biệt cho từng query
+  // để tanstack query xác định một truy vấn lỗi , hàm truy vấn phải throw hoặc trả về 1 Promise reject
+  // nếu dùng fetch thì phải ném ra lỗi nhưng khi dùng axios thì không cần
+  // có 2 cách viết truyền biến vào  cách 1 truyền thẳng khi dùng useQuerry query key làm tham số truyền vào
+  // cách 2 sử dụng QueryFunctionContext để truyền trong cái function gọi API
+  // ngoài ra còn có hook useInfiniteQuery có tham số truyền truyền vào query function là pageParam cho biết bạn đang gọi API trang nào trong chuỗi các trang dữ liêuj
+  // cho phép phân trang vô hạn dễ dàng: không cần fetch toàn bộ dữ liệu cùng 1 lúc , mà fetch từng trang theo yêu cầu
+  // pageParam giúp query function linh hoạt , tự động biết cần fetch trang nào tiếp theo , ứng dụng làm chức năng scroll vô hạn như facebook twitter
+  // không nên dùng với dữ liệu nhỏ , tải hết 1 lần được , khi API không hỗ trợ phân trang hoặc phân trang phức tạp
 
   // query option
   // ngoài còn có stale time : là khoảng thời gian dữ liệu còn mới không cần gọi lại API , cache time là thời gian tồn tại nếu sau khoảng  thời gian nào đó không được dùng
