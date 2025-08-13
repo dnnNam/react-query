@@ -1,7 +1,11 @@
+import { useMatch } from 'react-router-dom'
+
 export default function AddStudent() {
+  const addMatch = useMatch('/students/add') // kiểm tra xem có phải chế độ add không nếu là edit trả về null
+  const isAddMode = Boolean(addMatch)
   return (
     <div>
-      <h1 className='text-lg'>Add/Edit Student</h1>
+      <h1 className='text-lg'>{isAddMode ? 'Add' : 'Edit'} Student</h1>
       <form className='mt-6'>
         <div className='group relative z-0 mb-6 w-full'>
           <input
