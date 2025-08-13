@@ -9,7 +9,7 @@ import classNames from 'classnames'
 // khi type giống với class thì sẽ bị lỗi
 // Import 'Students' conflicts with local value, so must be declared with a type-only import when 'isolatedModules' is enabled.
 // thế nên sẽ as  StudentType
-const LIMIT = 10
+const LIMIT = 10 // số lượng item mỗi trang
 export default function Students() {
   // const [students, setStudents] = useState<StudentsType>([])
   // const [isLoading, setIsLoading] = useState<Boolean>(false)
@@ -38,7 +38,7 @@ export default function Students() {
 
   const queryString: { page?: string } = useQueryString()
   // nếu không có page là number thì Number sẽ convert ra NaN (Not a Number)
-  const page = Number(queryString.page) || 1 // nếu NaN là số 1
+  const page = Number(queryString.page) || 1 // nếu queryString không có (là undefined) Number convert qua sẽ là kiểu NaN (nhưng mình không muốn nhân Nan thì minh || 1 láy mặc định là 1  )
   // page sẽ lấy từ param
   const { data, isLoading } = useQuery({
     queryKey: ['students', page], // khi component render lần đầu tiên thì getStudent được gọi ---> dữ liệu được tải về --> lưu vào cache với key là 'students'
@@ -92,7 +92,8 @@ export default function Students() {
   // structural sharing chỉ hoạt động với dữ liệu JSON-compatible : là những kiểu dữ liệu mà có thẻ được chuyển thành chuỗi bằng JSON.Stringify() mà không bị lỗi
   // String , Number , Boolean , null ,Array , Object
   // thế nên những phần nào thay đổi thì sẽ dùng spread ... giúp react nhận biết nếu như khong có gì thay đổi thì giữ nguyên tránh re-render không cần thiết
-  const totalStudentsCount = Number(data?.headers['x-total-count'] || 0)
+  const totalStudentsCount = Number(data?.headers['x-total-count'] || 0) // có một thuộc tính x-totalCount hiển thị số lượng items từ đó chia cho số lượng mỗi trang để ra số trang
+  // VD 11.1 thì làm tròn lên 12 trang và ép kiểu sang number nếu là undefined Number ép ra NaN thì lấy là 0
   const totalPage = Math.ceil(totalStudentsCount / LIMIT)
   console.log(totalPage)
 
@@ -142,6 +143,7 @@ export default function Students() {
               </thead>
               <tbody>
                 {data?.data.map((student) => (
+                  // data object phải chấm thuộc tính data
                   <tr
                     key={student.id}
                     className='border-b bg-white hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-600'
@@ -174,10 +176,12 @@ export default function Students() {
               <ul className='inline-flex -space-x-px'>
                 <li>
                   {page === 1 ? (
+                    // nếu như page = 1 không cho previous thì ta trả về cho nó 1 thẻ span không click được
                     <span className='cursor-not-allowed rounded-l-lg border border-gray-300 bg-white py-2 px-3 leading-tight text-gray-500 hover:bg-gray-100 hover:text-gray-700 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white'>
                       Previous
                     </span>
                   ) : (
+                    // khác 1 thì trả về thẻ Link để click
                     <Link
                       className=' rounded-l-lg border border-gray-300 bg-white py-2 px-3 leading-tight text-gray-500 hover:bg-gray-100
                      hover:text-gray-700 '
@@ -190,8 +194,8 @@ export default function Students() {
                 {Array(totalPage)
                   .fill(0)
                   .map((_, index) => {
-                    const pageNumber = index + 1
-                    const isActive = page === pageNumber // khi page = 4 thì active ô số 4
+                    const pageNumber = index + 1 // trang đầu phải là trang 1
+                    const isActive = page === pageNumber // nếu như cái page trên url  bằng với cái pageNumber item thì nó active
                     return (
                       <li key={pageNumber}>
                         <Link
