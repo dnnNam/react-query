@@ -6,6 +6,7 @@ import { useQuery } from '@tanstack/react-query'
 import { useSearchParams } from 'react-router-dom'
 import { useQueryString } from 'utils/utils'
 import classNames from 'classnames'
+import { log } from 'console'
 // khi type giống với class thì sẽ bị lỗi
 // Import 'Students' conflicts with local value, so must be declared with a type-only import when 'isolatedModules' is enabled.
 // thế nên sẽ as  StudentType
@@ -42,9 +43,19 @@ export default function Students() {
   // page sẽ lấy từ param
   const { data, isLoading } = useQuery({
     queryKey: ['students', page], // khi component render lần đầu tiên thì getStudent được gọi ---> dữ liệu được tải về --> lưu vào cache với key là 'students'
-    queryFn: () => getStudents(page, LIMIT) // nếu conmponent umount rồi sau đó mount lại , hoặc có component khác cũng gọi cùng query key 'students' thì react query không gọi lại
+    queryFn: () => getStudents(page, LIMIT), // nếu conmponent umount rồi sau đó mount lại , hoặc có component khác cũng gọi cùng query key 'students' thì react query không gọi lại
     // API , mà trả  về dữ liệu từ cache
+    // KeepPreviousData : giữ lại data trước đó chứ không để undefined , tại nếu gọi trang 2 thì nó phải call API nên isLoading true
+    // KeepPreviousData sẽ giúp giữ lại giá trị cũ nên data không còn undefined isLoading false không còn skeleton nữa tránh hiện tượng bị giựt
+    keepPreviousData: true
   })
+
+  // vòng đời của caching
+  // Query Instance có hoặc không cache data
+  // Fetch ngầm (background fetching)
+  // các inactive query
+  // xóa cache khỏi bộ nhớ (Garbage collection)
+
   // query key là gì là 1 cái key định danh cho cái query  , react-query quản lý caching dựa trên query key
   // nên đặt query có nghĩa để dễ quản lý và clean code nên đặt query key là mảng
   // nếu định nghĩa bằng object cho dù đổi thứ tự các thuộc tính thì nó vẫn giống nhau
@@ -95,7 +106,6 @@ export default function Students() {
   const totalStudentsCount = Number(data?.headers['x-total-count'] || 0) // có một thuộc tính x-totalCount hiển thị số lượng items từ đó chia cho số lượng mỗi trang để ra số trang
   // VD 11.1 thì làm tròn lên 12 trang và ép kiểu sang number nếu là undefined Number ép ra NaN thì lấy là 0
   const totalPage = Math.ceil(totalStudentsCount / LIMIT)
-  console.log(totalPage)
 
   return (
     <div>
