@@ -6,6 +6,7 @@ export default function AddStudent() {
   return (
     <div>
       <h1 className='text-lg'>{isAddMode ? 'Add' : 'Edit'} Student</h1>
+      {/* nếu chọn Add student sẽ hiển thị add Student , nếu bấm vào edit sẽ hiển thị Edit Student  */}
       <form className='mt-6'>
         <div className='group relative z-0 mb-6 w-full'>
           <input
