@@ -2,10 +2,6 @@
 
 ## Giới thiệu series React Query
 
-Series này sẽ khoản 10 video, xem hết series này bạn sẽ nắm vững được React Query và có thể tự tin xử lý mọi case thực tế
-
-- Video 1: React query là gì? setup dev tool, gọi query
-
 ## React Query là gì?
 
 TanStack Query (tên mới) hay React Query là thư viện giúp quản lý các state bất đồng bộ như data từ api.
