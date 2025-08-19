@@ -1,13 +1,47 @@
 import { useMatch } from 'react-router-dom'
+import { useMutation } from '@tanstack/react-query'
+import http from 'utils/http'
+import { addStudent } from 'apis/students.api'
+import { Student } from 'types/students.type'
+import { useState } from 'react'
 
+type FormStateType = Omit<Student, 'id'>
+const initialFormState: FormStateType = {
+  avatar: '',
+  email: '',
+  btc_address: '',
+  country: '',
+  first_name: '',
+  gender: 'other',
+  last_name: ''
+}
 export default function AddStudent() {
+  const [formState, setFormState] = useState<FormStateType>(initialFormState)
   const addMatch = useMatch('/students/add') // kiểm tra xem có phải chế độ add không nếu là edit trả về null
   const isAddMode = Boolean(addMatch)
+
+  const { mutate } = useMutation({
+    mutationFn: (body: FormStateType) => {
+      // handle data
+      return addStudent(body)
+    }
+  })
+
+  // dùng currying
+  const handleChange = (name: keyof FormStateType) => (event: React.ChangeEvent<HTMLInputElement>) => {
+    setFormState((prev) => ({ ...prev, [name]: event.target.value }))
+  }
+
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    mutate(formState)
+  }
+
   return (
     <div>
       <h1 className='text-lg'>{isAddMode ? 'Add' : 'Edit'} Student</h1>
       {/* nếu chọn Add student sẽ hiển thị add Student , nếu bấm vào edit sẽ hiển thị Edit Student  */}
-      <form className='mt-6'>
+      <form className='mt-6' onSubmit={handleSubmit}>
         <div className='group relative z-0 mb-6 w-full'>
           <input
             type='email'
@@ -15,6 +49,8 @@ export default function AddStudent() {
             id='floating_email'
             className='peer block w-full appearance-none border-0 border-b-2 border-gray-300 bg-transparent py-2.5 px-0 text-sm text-gray-900 focus:border-blue-600 focus:outline-none focus:ring-0 dark:border-gray-600 dark:text-white dark:focus:border-blue-500'
             placeholder=' '
+            value={formState.email}
+            onChange={handleChange('email')}
             required
           />
           <label
@@ -33,6 +69,9 @@ export default function AddStudent() {
                   id='gender-1'
                   type='radio'
                   name='gender'
+                  value='male'
+                  checked={formState.gender === 'male'}
+                  onChange={handleChange('gender')}
                   className='h-4 w-4 border-gray-300 bg-gray-100 text-blue-600 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:ring-offset-gray-800 dark:focus:ring-blue-600'
                 />
                 <label htmlFor='gender-1' className='ml-2 text-sm font-medium text-gray-900 dark:text-gray-300'>
@@ -41,10 +80,12 @@ export default function AddStudent() {
               </div>
               <div className='mb-4 flex items-center'>
                 <input
-                  defaultChecked
                   id='gender-2'
                   type='radio'
                   name='gender'
+                  value='female'
+                  checked={formState.gender === 'female'}
+                  onChange={handleChange('gender')}
                   className='h-4 w-4 border-gray-300 bg-gray-100 text-blue-600 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:ring-offset-gray-800 dark:focus:ring-blue-600'
                 />
                 <label htmlFor='gender-2' className='ml-2 text-sm font-medium text-gray-900 dark:text-gray-300'>
@@ -53,10 +94,12 @@ export default function AddStudent() {
               </div>
               <div className='flex items-center'>
                 <input
-                  defaultChecked
                   id='gender-3'
                   type='radio'
                   name='gender'
+                  value='other'
+                  checked={formState.gender === 'other'}
+                  onChange={handleChange('gender')}
                   className='h-4 w-4 border-gray-300 bg-gray-100 text-blue-600 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:ring-offset-gray-800 dark:focus:ring-blue-600'
                 />
                 <label htmlFor='gender-3' className='ml-2 text-sm font-medium text-gray-900 dark:text-gray-300'>
@@ -71,6 +114,8 @@ export default function AddStudent() {
             type='text'
             name='country'
             id='country'
+            value={formState.country}
+            onChange={handleChange('country')}
             className='peer block w-full appearance-none border-0 border-b-2 border-gray-300 bg-transparent py-2.5 px-0 text-sm text-gray-900 focus:border-blue-600 focus:outline-none focus:ring-0 dark:border-gray-600 dark:text-white dark:focus:border-blue-500'
             placeholder=' '
             required
@@ -86,12 +131,13 @@ export default function AddStudent() {
           <div className='group relative z-0 mb-6 w-full'>
             <input
               type='tel'
-              pattern='[0-9]{3}-[0-9]{3}-[0-9]{4}'
               name='first_name'
               id='first_name'
               className='peer block w-full appearance-none border-0 border-b-2 border-gray-300 bg-transparent py-2.5 px-0 text-sm text-gray-900 focus:border-blue-600 focus:outline-none focus:ring-0 dark:border-gray-600 dark:text-white dark:focus:border-blue-500'
               placeholder=' '
               required
+              value={formState.first_name}
+              onChange={handleChange('first_name')}
             />
             <label
               htmlFor='first_name'
@@ -108,6 +154,8 @@ export default function AddStudent() {
               className='peer block w-full appearance-none border-0 border-b-2 border-gray-300 bg-transparent py-2.5 px-0 text-sm text-gray-900 focus:border-blue-600 focus:outline-none focus:ring-0 dark:border-gray-600 dark:text-white dark:focus:border-blue-500'
               placeholder=' '
               required
+              value={formState.last_name}
+              onChange={handleChange('last_name')}
             />
             <label
               htmlFor='last_name'
@@ -126,6 +174,8 @@ export default function AddStudent() {
               className='peer block w-full appearance-none border-0 border-b-2 border-gray-300 bg-transparent py-2.5 px-0 text-sm text-gray-900 focus:border-blue-600 focus:outline-none focus:ring-0 dark:border-gray-600 dark:text-white dark:focus:border-blue-500'
               placeholder=' '
               required
+              value={formState.avatar}
+              onChange={handleChange('avatar')}
             />
             <label
               htmlFor='avatar'
@@ -142,6 +192,8 @@ export default function AddStudent() {
               className='peer block w-full appearance-none border-0 border-b-2 border-gray-300 bg-transparent py-2.5 px-0 text-sm text-gray-900 focus:border-blue-600 focus:outline-none focus:ring-0 dark:border-gray-600 dark:text-white dark:focus:border-blue-500'
               placeholder=' '
               required
+              value={formState.btc_address}
+              onChange={handleChange('btc_address')}
             />
             <label
               htmlFor='btc_address'

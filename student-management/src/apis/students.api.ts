@@ -1,6 +1,6 @@
 // sẽ khai các lần gọi api trong này
 
-import { Students } from 'types/students.type'
+import { Student, Students } from 'types/students.type'
 import http from 'utils/http'
 
 // truyền page và limit hỗ trợ pagination
@@ -15,3 +15,8 @@ export const getStudents = (page: number | string, limit: number | string) =>
       _limit: limit
     }
   })
+
+// thêm một học sinh
+export const addStudent = (student: Omit<Student, 'id'>) => {
+  return http.post<Student>('/students', student)
+}

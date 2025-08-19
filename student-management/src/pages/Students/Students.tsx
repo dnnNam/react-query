@@ -1,12 +1,9 @@
-import { getStudents } from 'apis/students.api'
-import { Fragment, useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
-import { Students as StudentsType } from 'types/students.type'
 import { useQuery } from '@tanstack/react-query'
-import { useSearchParams } from 'react-router-dom'
-import { useQueryString } from 'utils/utils'
+import { getStudents } from 'apis/students.api'
 import classNames from 'classnames'
-import { log } from 'console'
+import { Fragment } from 'react'
+import { Link } from 'react-router-dom'
+import { useQueryString } from 'utils/utils'
 // khi type giống với class thì sẽ bị lỗi
 // Import 'Students' conflicts with local value, so must be declared with a type-only import when 'isolatedModules' is enabled.
 // thế nên sẽ as  StudentType
