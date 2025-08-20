@@ -3,7 +3,8 @@ import { useMutation } from '@tanstack/react-query'
 import http from 'utils/http'
 import { addStudent } from 'apis/students.api'
 import { Student } from 'types/students.type'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
+import { isAxiosError } from 'utils/utils'
 
 type FormStateType = Omit<Student, 'id'>
 const initialFormState: FormStateType = {
@@ -15,17 +16,32 @@ const initialFormState: FormStateType = {
   gender: 'other',
   last_name: ''
 }
+
+type FormError =
+  | {
+      [key in keyof FormStateType]: string
+    }
+  | null
+
 export default function AddStudent() {
   const [formState, setFormState] = useState<FormStateType>(initialFormState)
   const addMatch = useMatch('/students/add') // kiểm tra xem có phải chế độ add không nếu là edit trả về null
   const isAddMode = Boolean(addMatch)
 
-  const { mutate } = useMutation({
+  const { mutate, error } = useMutation({
     mutationFn: (body: FormStateType) => {
       // handle data
       return addStudent(body)
     }
   })
+  console.log('error', error)
+
+  const errorForm: FormError = useMemo(() => {
+    if (isAxiosError<{ error: FormError }>(error) && error.response?.status === 422) {
+      return error.response?.data.error
+    }
+    return null
+  }, [error])
 
   // dùng currying
   const handleChange = (name: keyof FormStateType) => (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -47,7 +63,9 @@ export default function AddStudent() {
             type='email'
             name='floating_email'
             id='floating_email'
-            className='peer block w-full appearance-none border-0 border-b-2 border-gray-300 bg-transparent py-2.5 px-0 text-sm text-gray-900 focus:border-blue-600 focus:outline-none focus:ring-0 dark:border-gray-600 dark:text-white dark:focus:border-blue-500'
+            className='peer block w-full appearance-none border-0 border-b-2 border-gray-300 
+           bg-white py-2.5 px-0 text-sm text-gray-900 
+           focus:border-blue-600 focus:outline-none focus:ring-0'
             placeholder=' '
             value={formState.email}
             onChange={handleChange('email')}
@@ -55,7 +73,7 @@ export default function AddStudent() {
           />
           <label
             htmlFor='floating_email'
-            className='absolute top-3 -z-10 origin-[0] -translate-y-6 scale-75 transform text-sm text-gray-500 duration-300 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:scale-100 peer-focus:left-0 peer-focus:-translate-y-6 peer-focus:scale-75 peer-focus:font-medium peer-focus:text-blue-600 dark:text-gray-400 peer-focus:dark:text-blue-500'
+            className='absolute top-3  origin-[0] -translate-y-6 scale-75 transform text-sm text-gray-500 duration-300 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:scale-100 peer-focus:left-0 peer-focus:-translate-y-6 peer-focus:scale-75 peer-focus:font-medium peer-focus:text-blue-600 dark:text-gray-400 peer-focus:dark:text-blue-500'
           >
             Email address
           </label>
@@ -72,7 +90,7 @@ export default function AddStudent() {
                   value='male'
                   checked={formState.gender === 'male'}
                   onChange={handleChange('gender')}
-                  className='h-4 w-4 border-gray-300 bg-gray-100 text-blue-600 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:ring-offset-gray-800 dark:focus:ring-blue-600'
+                  className='h-4 w-4 border-gray-300 bg-gray-100 text-blue-600  dark:border-gray-600 dark:bg-gray-700 dark:ring-offset-gray-800 dark:focus:ring-blue-600'
                 />
                 <label htmlFor='gender-1' className='ml-2 text-sm font-medium text-gray-900 dark:text-gray-300'>
                   Male
@@ -86,7 +104,7 @@ export default function AddStudent() {
                   value='female'
                   checked={formState.gender === 'female'}
                   onChange={handleChange('gender')}
-                  className='h-4 w-4 border-gray-300 bg-gray-100 text-blue-600 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:ring-offset-gray-800 dark:focus:ring-blue-600'
+                  className='h-4 w-4 border-gray-300 bg-gray-100 text-blue-600  dark:border-gray-600 dark:bg-gray-700 dark:ring-offset-gray-800 dark:focus:ring-blue-600'
                 />
                 <label htmlFor='gender-2' className='ml-2 text-sm font-medium text-gray-900 dark:text-gray-300'>
                   Female
@@ -100,7 +118,7 @@ export default function AddStudent() {
                   value='other'
                   checked={formState.gender === 'other'}
                   onChange={handleChange('gender')}
-                  className='h-4 w-4 border-gray-300 bg-gray-100 text-blue-600 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:ring-offset-gray-800 dark:focus:ring-blue-600'
+                  className='h-4 w-4 border-gray-300 bg-gray-100 text-blue-600  dark:border-gray-600 dark:bg-gray-700 dark:ring-offset-gray-800 dark:focus:ring-blue-600'
                 />
                 <label htmlFor='gender-3' className='ml-2 text-sm font-medium text-gray-900 dark:text-gray-300'>
                   Other
@@ -116,13 +134,15 @@ export default function AddStudent() {
             id='country'
             value={formState.country}
             onChange={handleChange('country')}
-            className='peer block w-full appearance-none border-0 border-b-2 border-gray-300 bg-transparent py-2.5 px-0 text-sm text-gray-900 focus:border-blue-600 focus:outline-none focus:ring-0 dark:border-gray-600 dark:text-white dark:focus:border-blue-500'
+            className='peer block w-full appearance-none border-0 border-b-2 border-gray-300 
+           bg-white py-2.5 px-0 text-sm text-gray-900 
+           focus:border-blue-600 focus:outline-none focus:ring-0'
             placeholder=' '
             required
           />
           <label
             htmlFor='country'
-            className='absolute top-3 -z-10 origin-[0] -translate-y-6 scale-75 transform text-sm text-gray-500 duration-300 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:scale-100 peer-focus:left-0 peer-focus:-translate-y-6 peer-focus:scale-75 peer-focus:font-medium peer-focus:text-blue-600 dark:text-gray-400 peer-focus:dark:text-blue-500'
+            className='absolute top-3 origin-[0] -translate-y-6 scale-75 transform text-sm text-gray-500 duration-300 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:scale-100 peer-focus:left-0 peer-focus:-translate-y-6 peer-focus:scale-75 peer-focus:font-medium peer-focus:text-blue-600 dark:text-gray-400 peer-focus:dark:text-blue-500'
           >
             Country
           </label>
@@ -133,7 +153,9 @@ export default function AddStudent() {
               type='tel'
               name='first_name'
               id='first_name'
-              className='peer block w-full appearance-none border-0 border-b-2 border-gray-300 bg-transparent py-2.5 px-0 text-sm text-gray-900 focus:border-blue-600 focus:outline-none focus:ring-0 dark:border-gray-600 dark:text-white dark:focus:border-blue-500'
+              className='peer block w-full appearance-none border-0 border-b-2 border-gray-300 
+           bg-white py-2.5 px-0 text-sm text-gray-900 
+           focus:border-blue-600 focus:outline-none focus:ring-0'
               placeholder=' '
               required
               value={formState.first_name}
@@ -141,7 +163,7 @@ export default function AddStudent() {
             />
             <label
               htmlFor='first_name'
-              className='absolute top-3 -z-10 origin-[0] -translate-y-6 scale-75 transform text-sm text-gray-500 duration-300 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:scale-100 peer-focus:left-0 peer-focus:-translate-y-6 peer-focus:scale-75 peer-focus:font-medium peer-focus:text-blue-600 dark:text-gray-400 peer-focus:dark:text-blue-500'
+              className='absolute top-3  origin-[0] -translate-y-6 scale-75 transform text-sm text-gray-500 duration-300 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:scale-100 peer-focus:left-0 peer-focus:-translate-y-6 peer-focus:scale-75 peer-focus:font-medium peer-focus:text-blue-600 dark:text-gray-400 peer-focus:dark:text-blue-500'
             >
               First Name
             </label>
@@ -151,7 +173,9 @@ export default function AddStudent() {
               type='text'
               name='last_name'
               id='last_name'
-              className='peer block w-full appearance-none border-0 border-b-2 border-gray-300 bg-transparent py-2.5 px-0 text-sm text-gray-900 focus:border-blue-600 focus:outline-none focus:ring-0 dark:border-gray-600 dark:text-white dark:focus:border-blue-500'
+              className='peer block w-full appearance-none border-0 border-b-2 border-gray-300 
+           bg-white py-2.5 px-0 text-sm text-gray-900 
+           focus:border-blue-600 focus:outline-none focus:ring-0'
               placeholder=' '
               required
               value={formState.last_name}
@@ -159,7 +183,7 @@ export default function AddStudent() {
             />
             <label
               htmlFor='last_name'
-              className='absolute top-3 -z-10 origin-[0] -translate-y-6 scale-75 transform text-sm text-gray-500 duration-300 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:scale-100 peer-focus:left-0 peer-focus:-translate-y-6 peer-focus:scale-75 peer-focus:font-medium peer-focus:text-blue-600 dark:text-gray-400 peer-focus:dark:text-blue-500'
+              className='absolute top-3  origin-[0] -translate-y-6 scale-75 transform text-sm text-gray-500 duration-300 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:scale-100 peer-focus:left-0 peer-focus:-translate-y-6 peer-focus:scale-75 peer-focus:font-medium peer-focus:text-blue-600 dark:text-gray-400 peer-focus:dark:text-blue-500'
             >
               Last Name
             </label>
@@ -171,7 +195,9 @@ export default function AddStudent() {
               type='text'
               name='avatar'
               id='avatar'
-              className='peer block w-full appearance-none border-0 border-b-2 border-gray-300 bg-transparent py-2.5 px-0 text-sm text-gray-900 focus:border-blue-600 focus:outline-none focus:ring-0 dark:border-gray-600 dark:text-white dark:focus:border-blue-500'
+              className='peer block w-full appearance-none border-0 border-b-2 border-gray-300 
+           bg-white py-2.5 px-0 text-sm text-gray-900 
+           focus:border-blue-600 focus:outline-none focus:ring-0'
               placeholder=' '
               required
               value={formState.avatar}
@@ -179,7 +205,7 @@ export default function AddStudent() {
             />
             <label
               htmlFor='avatar'
-              className='absolute top-3 -z-10 origin-[0] -translate-y-6 scale-75 transform text-sm text-gray-500 duration-300 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:scale-100 peer-focus:left-0 peer-focus:-translate-y-6 peer-focus:scale-75 peer-focus:font-medium peer-focus:text-blue-600 dark:text-gray-400 peer-focus:dark:text-blue-500'
+              className='absolute top-3  origin-[0] -translate-y-6 scale-75 transform text-sm text-gray-500 duration-300 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:scale-100 peer-focus:left-0 peer-focus:-translate-y-6 peer-focus:scale-75 peer-focus:font-medium peer-focus:text-blue-600 dark:text-gray-400 peer-focus:dark:text-blue-500'
             >
               Avatar Base64
             </label>
@@ -189,7 +215,9 @@ export default function AddStudent() {
               type='text'
               name='btc_address'
               id='btc_address'
-              className='peer block w-full appearance-none border-0 border-b-2 border-gray-300 bg-transparent py-2.5 px-0 text-sm text-gray-900 focus:border-blue-600 focus:outline-none focus:ring-0 dark:border-gray-600 dark:text-white dark:focus:border-blue-500'
+              className='peer block w-full appearance-none border-0 border-b-2 border-gray-300 
+           bg-white py-2.5 px-0 text-sm text-gray-900 
+           focus:border-blue-600 focus:outline-none focus:ring-0'
               placeholder=' '
               required
               value={formState.btc_address}
@@ -197,7 +225,7 @@ export default function AddStudent() {
             />
             <label
               htmlFor='btc_address'
-              className='absolute top-3 -z-10 origin-[0] -translate-y-6 scale-75 transform text-sm text-gray-500 duration-300 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:scale-100 peer-focus:left-0 peer-focus:-translate-y-6 peer-focus:scale-75 peer-focus:font-medium peer-focus:text-blue-600 dark:text-gray-400 peer-focus:dark:text-blue-500'
+              className='absolute top-3    origin-[0] -translate-y-6 scale-75 transform text-sm text-gray-500 duration-300 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:scale-100 peer-focus:left-0 peer-focus:-translate-y-6 peer-focus:scale-75 peer-focus:font-medium peer-focus:text-blue-600 dark:text-gray-400 peer-focus:dark:text-blue-500'
             >
               BTC Address
             </label>
