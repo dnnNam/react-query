@@ -28,7 +28,7 @@ export default function AddStudent() {
   const addMatch = useMatch('/students/add') // kiểm tra xem có phải chế độ add không nếu là edit trả về null
   const isAddMode = Boolean(addMatch)
 
-  const { mutate, error } = useMutation({
+  const { mutate, error, data, reset } = useMutation({
     mutationFn: (body: FormStateType) => {
       // handle data
       return addStudent(body)
@@ -46,6 +46,12 @@ export default function AddStudent() {
   // dùng currying
   const handleChange = (name: keyof FormStateType) => (event: React.ChangeEvent<HTMLInputElement>) => {
     setFormState((prev) => ({ ...prev, [name]: event.target.value }))
+    // muốn khi báo lỗi mình gõ lại vào ô có lỗi lỗi sẽ biến mất
+    // thì mutation có cung cấp hàm reset
+    // nếu có data hoặc lỗi thì reset trang thái ban đầu
+    if (data || error) {
+      reset()
+    }
   }
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
@@ -60,7 +66,7 @@ export default function AddStudent() {
       <form className='mt-6' onSubmit={handleSubmit}>
         <div className='group relative z-0 mb-6 w-full'>
           <input
-            type='email'
+            type='text'
             name='floating_email'
             id='floating_email'
             className='peer block w-full appearance-none border-0 border-b-2 border-gray-300 
@@ -77,6 +83,12 @@ export default function AddStudent() {
           >
             Email address
           </label>
+          {errorForm && (
+            <p className='mt-2 text-sm text-red-600'>
+              <span className='font-medium'>Lỗi!</span>
+              {errorForm.email}
+            </p>
+          )}
         </div>
 
         <div className='group relative z-0 mb-6 w-full'>
