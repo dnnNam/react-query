@@ -28,7 +28,7 @@ export default function AddStudent() {
   const addMatch = useMatch('/students/add') // kiểm tra xem có phải chế độ add không nếu là edit trả về null
   const isAddMode = Boolean(addMatch)
 
-  const { mutate, error, data, reset } = useMutation({
+  const { mutate, mutateAsync, error, data, reset } = useMutation({
     mutationFn: (body: FormStateType) => {
       // handle data
       return addStudent(body)
@@ -54,9 +54,25 @@ export default function AddStudent() {
     }
   }
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
-    mutate(formState)
+
+    try {
+      const data = await mutateAsync(formState)
+      // muốn xử  lí data in ra check
+      setFormState(initialFormState)
+    } catch (error) {
+      // muốn xem lỗi thì log lỗi
+      console.log('error', error)
+    }
+    mutate(
+      formState
+      //   onSuccess: () => { // cách 1
+      //     // nếu thành công thì reset form
+      //     setFormState(initialFormState)
+      //   }
+      //
+    )
   }
 
   return (
