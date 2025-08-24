@@ -1,11 +1,11 @@
 import { useMutation, useQuery } from '@tanstack/react-query'
-import { addStudent, getStudent } from 'apis/students.api'
+import { addStudent, getStudent, updateStudent } from 'apis/students.api'
 import { useMemo, useState } from 'react'
 import { useMatch, useParams } from 'react-router-dom'
 import { Student } from 'types/students.type'
 import { isAxiosError } from 'utils/utils'
 
-type FormStateType = Omit<Student, 'id'>
+type FormStateType = Omit<Student, 'id'> | Student
 const initialFormState: FormStateType = {
   avatar: '',
   email: '',
@@ -29,7 +29,7 @@ export default function AddStudent() {
   // làm chức năng edit
   const { id } = useParams()
 
-  const { mutate, mutateAsync, error, data, reset } = useMutation({
+  const addMutationStudent = useMutation({
     mutationFn: (body: FormStateType) => {
       // handle data
       return addStudent(body)
@@ -46,12 +46,20 @@ export default function AddStudent() {
     }
   })
 
+  // update người dùng
+  const updateStudentMutation = useMutation({
+    mutationFn: (_) => updateStudent(id as string, formState as Student)
+  })
+
   const errorForm: FormError = useMemo(() => {
-    if (isAxiosError<{ error: FormError }>(error) && error.response?.status === 422) {
-      return error.response?.data.error
+    if (
+      isAxiosError<{ error: FormError }>(addMutationStudent.error) &&
+      addMutationStudent.error.response?.status === 422
+    ) {
+      return addMutationStudent.error.response?.data.error
     }
     return null
-  }, [error])
+  }, [addMutationStudent.error])
 
   // dùng currying
   const handleChange = (name: keyof FormStateType) => (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -59,30 +67,30 @@ export default function AddStudent() {
     // muốn khi báo lỗi mình gõ lại vào ô có lỗi lỗi sẽ biến mất
     // thì mutation có cung cấp hàm reset
     // nếu có data hoặc lỗi thì reset trang thái ban đầu
-    if (data || error) {
-      reset()
+    if (addMutationStudent.data || addMutationStudent.error) {
+      addMutationStudent.reset()
     }
   }
 
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
-
-    try {
-      const data = await mutateAsync(formState)
-      // muốn xử  lí data in ra check
-      setFormState(initialFormState)
-    } catch (error) {
-      // muốn xem lỗi thì log lỗi
-      console.log('error', error)
+    if (isAddMode) {
+      addMutationStudent.mutate(formState, {
+        onSuccess: () => {
+          // cách 1
+          // nếu thành công thì reset form
+          setFormState(initialFormState)
+        }
+      })
+    } else {
+      // vì hàm update không cần dùng tham số mà dùng trực tiếp biến id là formState , nên để undefined (bắt buộc) mới dùng được options
+      // khác với cách viết trên add có 2 cách hơi khó lú
+      updateStudentMutation.mutate(undefined, {
+        onSuccess: (data) => {
+          console.log(data)
+        }
+      })
     }
-    mutate(
-      formState
-      //   onSuccess: () => { // cách 1
-      //     // nếu thành công thì reset form
-      //     setFormState(initialFormState)
-      //   }
-      //
-    )
   }
 
   return (

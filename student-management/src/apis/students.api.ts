@@ -18,6 +18,8 @@ export const getStudents = (page: number | string, limit: number | string) =>
 
 export const getStudent = (id: number | string) => http.get<Student>(`students/${id}`)
 
+export const updateStudent = (id: number | string, student: Student) => http.put<Student>(`students/${id}`, student)
+
 // thêm một học sinh
 export const addStudent = (student: Omit<Student, 'id'>) => {
   return http.post<Student>('/students', student)
