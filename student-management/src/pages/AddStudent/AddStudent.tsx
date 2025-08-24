@@ -1,9 +1,8 @@
-import { useMatch } from 'react-router-dom'
-import { useMutation } from '@tanstack/react-query'
-import http from 'utils/http'
-import { addStudent } from 'apis/students.api'
-import { Student } from 'types/students.type'
+import { useMutation, useQuery } from '@tanstack/react-query'
+import { addStudent, getStudent } from 'apis/students.api'
 import { useMemo, useState } from 'react'
+import { useMatch, useParams } from 'react-router-dom'
+import { Student } from 'types/students.type'
 import { isAxiosError } from 'utils/utils'
 
 type FormStateType = Omit<Student, 'id'>
@@ -27,6 +26,8 @@ export default function AddStudent() {
   const [formState, setFormState] = useState<FormStateType>(initialFormState)
   const addMatch = useMatch('/students/add') // kiểm tra xem có phải chế độ add không nếu là edit trả về null
   const isAddMode = Boolean(addMatch)
+  // làm chức năng edit
+  const { id } = useParams()
 
   const { mutate, mutateAsync, error, data, reset } = useMutation({
     mutationFn: (body: FormStateType) => {
@@ -34,7 +35,16 @@ export default function AddStudent() {
       return addStudent(body)
     }
   })
-  console.log('error', error)
+  // lấy infor của một student lên form
+  useQuery({
+    queryKey: ['student', id],
+    queryFn: () => getStudent(id as string),
+    // có data thì mới enable
+    enabled: id !== undefined,
+    onSuccess: (data) => {
+      setFormState(data.data)
+    }
+  })
 
   const errorForm: FormError = useMemo(() => {
     if (isAxiosError<{ error: FormError }>(error) && error.response?.status === 422) {
