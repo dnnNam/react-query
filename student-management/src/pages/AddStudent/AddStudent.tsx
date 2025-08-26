@@ -53,14 +53,12 @@ export default function AddStudent() {
   })
 
   const errorForm: FormError = useMemo(() => {
-    if (
-      isAxiosError<{ error: FormError }>(addMutationStudent.error) &&
-      addMutationStudent.error.response?.status === 422
-    ) {
-      return addMutationStudent.error.response?.data.error
+    const error = isAddMode ? addMutationStudent.error : updateStudentMutation.error
+    if (isAxiosError<{ error: FormError }>(error) && error.response?.status === 422) {
+      return error.response?.data.error
     }
     return null
-  }, [addMutationStudent.error])
+  }, [addMutationStudent.error, isAddMode, updateStudentMutation.error])
 
   // dùng currying
   const handleChange = (name: keyof FormStateType) => (event: React.ChangeEvent<HTMLInputElement>) => {
