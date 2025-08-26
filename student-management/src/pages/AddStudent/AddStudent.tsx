@@ -2,6 +2,7 @@ import { useMutation, useQuery } from '@tanstack/react-query'
 import { addStudent, getStudent, updateStudent } from 'apis/students.api'
 import { useMemo, useState } from 'react'
 import { useMatch, useParams } from 'react-router-dom'
+import { toast } from 'react-toastify'
 import { Student } from 'types/students.type'
 import { isAxiosError } from 'utils/utils'
 
@@ -80,14 +81,15 @@ export default function AddStudent() {
           // cách 1
           // nếu thành công thì reset form
           setFormState(initialFormState)
+          toast.success('Add successfully')
         }
       })
     } else {
       // vì hàm update không cần dùng tham số mà dùng trực tiếp biến id là formState , nên để undefined (bắt buộc) mới dùng được options
       // khác với cách viết trên add có 2 cách hơi khó lú
       updateStudentMutation.mutate(undefined, {
-        onSuccess: (data) => {
-          console.log(data)
+        onSuccess: (_) => {
+          toast.success('Update successfully')
         }
       })
     }
@@ -282,7 +284,7 @@ export default function AddStudent() {
           type='submit'
           className='w-full rounded-lg bg-blue-700 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 sm:w-auto'
         >
-          Submit
+          {isAddMode ? 'Add' : 'Update'}
         </button>
       </form>
     </div>
