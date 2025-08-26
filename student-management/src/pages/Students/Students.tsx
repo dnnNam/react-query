@@ -1,8 +1,9 @@
-import { useQuery } from '@tanstack/react-query'
-import { getStudents } from 'apis/students.api'
+import { useMutation, useQuery } from '@tanstack/react-query'
+import { deleteStudent, getStudents } from 'apis/students.api'
 import classNames from 'classnames'
 import { Fragment } from 'react'
 import { Link } from 'react-router-dom'
+import { toast } from 'react-toastify'
 import { useQueryString } from 'utils/utils'
 // khi type giống với class thì sẽ bị lỗi
 // Import 'Students' conflicts with local value, so must be declared with a type-only import when 'isolatedModules' is enabled.
@@ -38,13 +39,20 @@ export default function Students() {
   // nếu không có page là number thì Number sẽ convert ra NaN (Not a Number)
   const page = Number(queryString.page) || 1 // nếu queryString không có (là undefined) Number convert qua sẽ là kiểu NaN (nhưng mình không muốn nhân Nan thì minh || 1 láy mặc định là 1  )
   // page sẽ lấy từ param
-  const { data, isLoading } = useQuery({
+  const studentQuery = useQuery({
     queryKey: ['students', page], // khi component render lần đầu tiên thì getStudent được gọi ---> dữ liệu được tải về --> lưu vào cache với key là 'students'
     queryFn: () => getStudents(page, LIMIT), // nếu conmponent umount rồi sau đó mount lại , hoặc có component khác cũng gọi cùng query key 'students' thì react query không gọi lại
     // API , mà trả  về dữ liệu từ cache
     // KeepPreviousData : giữ lại data trước đó chứ không để undefined , tại nếu gọi trang 2 thì nó phải call API nên isLoading true
     // KeepPreviousData sẽ giúp giữ lại giá trị cũ nên data không còn undefined isLoading false không còn skeleton nữa tránh hiện tượng bị giựt
     keepPreviousData: true
+  })
+
+  const deleteStudentMutation = useMutation({
+    mutationFn: (id: number | string) => deleteStudent(id),
+    onSuccess: (_, id) => {
+      toast.success(`delete success student with id ${id} `)
+    }
   })
 
   // vòng đời của caching
@@ -100,9 +108,13 @@ export default function Students() {
   // structural sharing chỉ hoạt động với dữ liệu JSON-compatible : là những kiểu dữ liệu mà có thẻ được chuyển thành chuỗi bằng JSON.Stringify() mà không bị lỗi
   // String , Number , Boolean , null ,Array , Object
   // thế nên những phần nào thay đổi thì sẽ dùng spread ... giúp react nhận biết nếu như khong có gì thay đổi thì giữ nguyên tránh re-render không cần thiết
-  const totalStudentsCount = Number(data?.headers['x-total-count'] || 0) // có một thuộc tính x-totalCount hiển thị số lượng items từ đó chia cho số lượng mỗi trang để ra số trang
+  const totalStudentsCount = Number(studentQuery.data?.headers['x-total-count'] || 0) // có một thuộc tính x-totalCount hiển thị số lượng items từ đó chia cho số lượng mỗi trang để ra số trang
   // VD 11.1 thì làm tròn lên 12 trang và ép kiểu sang number nếu là undefined Number ép ra NaN thì lấy là 0
   const totalPage = Math.ceil(totalStudentsCount / LIMIT)
+
+  const handleDelete = (id: number) => {
+    deleteStudentMutation.mutate(id)
+  }
 
   return (
     <div>
@@ -117,7 +129,7 @@ export default function Students() {
         </Link>
       </div>
 
-      {isLoading && (
+      {studentQuery.isLoading && (
         <div role='status' className='mt-6 animate-pulse'>
           <div className='mb-4 h-4  rounded bg-gray-200 dark:bg-gray-700' />
           <div className='mb-2.5 h-10  rounded bg-gray-200 dark:bg-gray-700' />
@@ -135,7 +147,7 @@ export default function Students() {
           <span className='sr-only'>Loading...</span>
         </div>
       )}
-      {!isLoading && (
+      {!studentQuery.isLoading && (
         <Fragment>
           <div className='relative mt-6 overflow-x-auto shadow-md sm:rounded-lg'>
             <table className='w-full text-left text-sm text-gray-500 dark:text-gray-400'>
@@ -159,7 +171,7 @@ export default function Students() {
                 </tr>
               </thead>
               <tbody>
-                {data?.data.map((student) => (
+                {studentQuery.data?.data.map((student) => (
                   // data object phải chấm thuộc tính data
                   <tr
                     key={student.id}
@@ -180,7 +192,12 @@ export default function Students() {
                       >
                         Edit
                       </Link>
-                      <button className='font-medium text-red-600 dark:text-red-500'>Delete</button>
+                      <button
+                        className='font-medium text-red-600 dark:text-red-500'
+                        onClick={() => handleDelete(student.id)}
+                      >
+                        Delete
+                      </button>
                     </td>
                   </tr>
                 ))}

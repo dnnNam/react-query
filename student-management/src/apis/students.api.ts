@@ -16,6 +16,7 @@ export const getStudents = (page: number | string, limit: number | string) =>
     }
   })
 
+// update
 export const getStudent = (id: number | string) => http.get<Student>(`students/${id}`)
 
 export const updateStudent = (id: number | string, student: Student) => http.put<Student>(`students/${id}`, student)
@@ -24,3 +25,6 @@ export const updateStudent = (id: number | string, student: Student) => http.put
 export const addStudent = (student: Omit<Student, 'id'>) => {
   return http.post<Student>('/students', student)
 }
+
+// delete
+export const deleteStudent = (id: number | String) => http.delete<{}>(`students/${id}`)
