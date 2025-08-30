@@ -1,4 +1,4 @@
-import { useMutation, useQuery } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { addStudent, getStudent, updateStudent } from 'apis/students.api'
 import { useMemo, useState } from 'react'
 import { useMatch, useParams } from 'react-router-dom'
@@ -29,7 +29,7 @@ export default function AddStudent() {
   const isAddMode = Boolean(addMatch)
   // làm chức năng edit
   const { id } = useParams()
-
+  const queryClient = useQueryClient() // tham chiếu tới thằng trong index
   const addMutationStudent = useMutation({
     mutationFn: (body: FormStateType) => {
       // handle data
@@ -49,7 +49,13 @@ export default function AddStudent() {
 
   // update người dùng
   const updateStudentMutation = useMutation({
-    mutationFn: (_) => updateStudent(id as string, formState as Student)
+    mutationFn: (_) => updateStudent(id as string, formState as Student),
+    onSuccess: (data) => {
+      // kiểm tra data phải có cùng kiểu với nhau
+      // cập nhập lại query key
+      // làm chức năng update xong phải cập nhập lại data
+      queryClient.setQueryData(['student', id], data) // data chỉ là object , truyền đúng
+    }
   })
 
   const errorForm: FormError = useMemo(() => {
