@@ -1,4 +1,4 @@
-import { useMutation, useQuery } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { deleteStudent, getStudents } from 'apis/students.api'
 import classNames from 'classnames'
 import { Fragment } from 'react'
@@ -35,6 +35,7 @@ export default function Students() {
   // cũng có thể kiểm tra quá trình fetch dữ liệu bằng fetchStatus fetching --> đang thực hiện gọi API
   // paused ==> đang bị tạm dừng , idle ==> không làm gì cả
 
+  const queryClient = useQueryClient()
   const queryString: { page?: string } = useQueryString()
   // nếu không có page là number thì Number sẽ convert ra NaN (Not a Number)
   const page = Number(queryString.page) || 1 // nếu queryString không có (là undefined) Number convert qua sẽ là kiểu NaN (nhưng mình không muốn nhân Nan thì minh || 1 láy mặc định là 1  )
@@ -52,6 +53,8 @@ export default function Students() {
     mutationFn: (id: number | string) => deleteStudent(id),
     onSuccess: (_, id) => {
       toast.success(`delete success student with id ${id} `)
+      // nếu muốn như invalidate nhiều querykey thì dùng predicate
+      queryClient.invalidateQueries({ queryKey: ['students', page], exact: true })
     }
   })
 
