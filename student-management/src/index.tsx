@@ -6,7 +6,13 @@ import reportWebVitals from './reportWebVitals'
 import { BrowserRouter } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
-const queryClient = new QueryClient()
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false
+    }
+  }
+})
 // query client là đối tượng trung tâm của tanStackQuery , quản lú toàn bộ cache và các trạng thái các query trong ứng dụng
 // cho phép thao tác thủ công , linh hoạt với cache
 // quản lý vòng đời , làm mới , xóa , cập nhập dữ liệu
