@@ -120,8 +120,10 @@ export default function Students() {
   }
 
   const handlePrefetchStudent = (id: number) => {
+    // muốn khi hover vào thì nó gọi luôn API
     queryClient.prefetchQuery(['student', String(id)], {
-      queryFn: () => getStudent(id)
+      queryFn: () => getStudent(id),
+      staleTime: 10 * 1000 // làm dữ liệu mới thêm xíu không bị gọi lại API
     })
   }
 
